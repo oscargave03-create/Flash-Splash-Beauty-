@@ -1,0 +1,6 @@
+{
+  "name": "Aura Luxe - Catálogo de Perfumes & Cuidado Personal",
+  "description": "Catálogo de perfumes, splash, cremas, lociones y jabones con carrito de compras, pagos por Yappy, panel administrativo y base de datos con Supabase.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
