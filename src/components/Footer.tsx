@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Phone, MapPin, Heart, ShieldCheck, Instagram, Facebook } from 'lucide-react';
+import { Sparkles, Phone, MapPin, Heart, ShieldCheck, Instagram, Facebook, Lock } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { ProductCategory } from '../types';
 
@@ -95,9 +95,11 @@ export const Footer: React.FC<FooterProps> = ({ onSelectCategory, onOpenAdmin })
             </p>
             <button
               onClick={onOpenAdmin}
-              className="py-2 px-4 rounded-xl bg-slate-800 hover:bg-pink-600 text-white text-xs font-bold transition-all border border-slate-700"
+              id="admin-footer-btn"
+              className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-pink-600 text-white text-xs font-bold transition-all border border-slate-700 flex items-center gap-2 shadow-sm"
             >
-              Acceso a Administración
+              <Lock className="w-3.5 h-3.5 text-pink-400" />
+              <span>Acceso a Administración</span>
             </button>
           </div>
 
