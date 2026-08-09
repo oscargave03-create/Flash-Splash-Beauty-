@@ -112,17 +112,23 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCart, onOpenAdmin, onSelec
             <button
               onClick={onOpenAdmin}
               id="admin-portal-btn"
-              className={`p-2.5 rounded-full text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-all ${
                 isAdminLoggedIn
                   ? 'bg-rose-900 text-rose-100 border border-rose-800 shadow-sm'
                   : 'bg-rose-50 text-rose-800 hover:bg-pink-100 border border-pink-200'
               }`}
-              title={isAdminLoggedIn ? 'Panel de Administración Activo' : 'Acceso Administrador'}
+              title={isAdminLoggedIn ? 'Panel de Administración Activo' : 'Iniciar Sesión Admin'}
             >
               {isAdminLoggedIn ? (
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <>
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  <span className="hidden sm:inline">Modo Admin</span>
+                </>
               ) : (
-                <Lock className="w-4 h-4 text-pink-600" />
+                <>
+                  <Lock className="w-3.5 h-3.5 text-pink-600" />
+                  <span className="hidden sm:inline">Acceso Admin</span>
+                </>
               )}
             </button>
 

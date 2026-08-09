@@ -11,9 +11,9 @@ interface AdminLoginModalProps {
 export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
 
-  const { loginAdmin } = useStore();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const { loginAdmin, adminUser } = useStore();
+  const [username, setUsername] = useState(adminUser.username || 'Angela28');
+  const [password, setPassword] = useState(adminUser.password || '1234578');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -56,6 +56,22 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
 
         {/* Content */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Quick Credential Helper Note */}
+          <div className="bg-pink-50 border border-pink-200 rounded-2xl p-3 text-xs text-rose-900 space-y-1">
+            <div className="flex items-center gap-1.5 font-bold">
+              <Key className="w-3.5 h-3.5 text-pink-600" />
+              <span>Credenciales por defecto:</span>
+            </div>
+            <div className="flex items-center gap-2 font-mono text-[11px] text-pink-800 flex-wrap">
+              <span className="bg-white/90 px-2 py-0.5 rounded-md border border-pink-200 font-bold">
+                Usuario: <strong>{adminUser.username || 'Angela28'}</strong>
+              </span>
+              <span className="bg-white/90 px-2 py-0.5 rounded-md border border-pink-200 font-bold">
+                Pass: <strong>{adminUser.password || '1234578'}</strong>
+              </span>
+            </div>
+          </div>
+
           {/* Username Input */}
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">
