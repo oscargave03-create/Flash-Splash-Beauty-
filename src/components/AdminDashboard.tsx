@@ -95,6 +95,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [spTesting, setSpTesting] = useState(false);
   const [spMessage, setSpMessage] = useState<{ success: boolean; text: string } | null>(null);
   const [copiedSql, setCopiedSql] = useState(false);
+  const [isSupabaseUnlocked, setIsSupabaseUnlocked] = useState(false);
+  const [showSpKey, setShowSpKey] = useState(false);
 
   // Order Details Modal
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
@@ -309,7 +311,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </div>
             <div>
               <h2 className="text-lg font-serif font-bold">Panel de Administración</h2>
-              <p className="text-xs text-slate-400">Gestión de Catálogo, Pedidos Yappy & Base de Datos</p>
+              <p className="text-xs text-slate-400">Gestión de Catálogo, Pedidos Yappy & Ajustes</p>
             </div>
           </div>
 
@@ -429,24 +431,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           >
             <Settings className="w-4 h-4 text-pink-500" />
             <span>Ajustes de Tienda</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('supabase')}
-            id="tab-btn-supabase"
-            className={`py-3 px-4 font-bold text-xs flex items-center gap-2 border-b-2 transition-all ${
-              activeTab === 'supabase'
-                ? 'border-pink-500 text-rose-900 bg-white shadow-2xs'
-                : 'border-transparent text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Database className="w-4 h-4 text-emerald-600" />
-            <span>Base de Datos Supabase</span>
-            {supabaseConfig.isConnected ? (
-              <span className="w-2 h-2 rounded-full bg-emerald-500" title="Conectado" />
-            ) : (
-              <span className="w-2 h-2 rounded-full bg-amber-400" title="Local Fallback" />
-            )}
           </button>
         </div>
 
@@ -1293,100 +1277,158 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           {/* TAB 4: SUPABASE INTEGRATION */}
           {activeTab === 'supabase' && (
             <div className="max-w-3xl mx-auto space-y-6">
-              <div className="bg-white rounded-2xl p-6 border border-rose-100 shadow-2xs space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-base font-serif font-bold text-slate-900 flex items-center gap-2">
-                      <Database className="w-5 h-5 text-emerald-600" />
-                      Conexión a Base de Datos Supabase
+              {!isSupabaseUnlocked ? (
+                /* LOCKED SECURITY SCREEN */
+                <div className="bg-slate-900 text-white rounded-3xl p-8 border border-slate-800 shadow-xl text-center space-y-5 my-4">
+                  <div className="inline-flex p-4 rounded-3xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                    <Lock className="w-10 h-10" />
+                  </div>
+                  <div className="space-y-2 max-w-lg mx-auto">
+                    <h3 className="text-lg font-serif font-bold text-white">
+                      Configuración Protegida de Base de Datos
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Ingresa tus credenciales de Supabase para almacenar en la nube en tiempo real tus productos y transacciones.
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Las credenciales de acceso a Supabase (Project URL, API Keys) y la estructura SQL del sistema se encuentran bloqueadas para prevenir accesos no autorizados.
                     </p>
                   </div>
 
-                  <div className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
-                    supabaseConfig.isConnected
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : 'bg-amber-100 text-amber-800'
-                  }`}>
-                    {supabaseConfig.isConnected ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Conectado a Supabase
-                      </>
-                    ) : (
-                      <>
-                        <AlertCircle className="w-3.5 h-3.5" /> Modo Local (Fallback)
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <form onSubmit={handleSaveSupabaseConfig} className="space-y-4 text-xs">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Project URL de Supabase</label>
-                    <input
-                      type="url"
-                      required
-                      value={spUrl}
-                      onChange={(e) => setSpUrl(e.target.value)}
-                      placeholder="https://xyz.supabase.co"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-rose-200 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">Anon / Public API Key</label>
-                    <input
-                      type="password"
-                      required
-                      value={spKey}
-                      onChange={(e) => setSpKey(e.target.value)}
-                      placeholder="eyJhbGciOi..."
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-rose-200 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-
-                  {spMessage && (
-                    <div className={`p-3 rounded-xl font-bold ${
-                      spMessage.success ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'
-                    }`}>
-                      {spMessage.text}
-                    </div>
-                  )}
-
-                  <div className="flex justify-end gap-3 pt-2">
+                  <div className="pt-2">
                     <button
-                      type="submit"
-                      disabled={spTesting}
-                      className="py-2.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all"
+                      type="button"
+                      onClick={() => setIsSupabaseUnlocked(true)}
+                      className="px-6 py-3 rounded-2xl bg-pink-500 hover:bg-rose-600 text-white font-bold text-xs shadow-lg inline-flex items-center gap-2 transition-all cursor-pointer"
                     >
-                      {spTesting ? 'Probando Conexión...' : 'Probar & Guardar Conexión'}
+                      <Lock className="w-4 h-4" />
+                      <span>Desbloquear y Mostrar Credenciales</span>
                     </button>
                   </div>
-                </form>
-              </div>
-
-              {/* SQL Schema Generator Box */}
-              <div className="bg-slate-900 text-slate-200 rounded-2xl p-6 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-bold text-white">Script SQL para crear las tablas en Supabase</h4>
-                    <p className="text-xs text-slate-400">Copia este código y pégalo en el Editor SQL de supabase.com</p>
-                  </div>
-                  <button
-                    onClick={handleCopySql}
-                    className="py-1.5 px-3 rounded-lg bg-pink-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center gap-1.5 transition-colors"
-                  >
-                    {copiedSql ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedSql ? '¡Copiado!' : 'Copiar Script SQL'}</span>
-                  </button>
                 </div>
+              ) : (
+                /* UNLOCKED SUPABASE CONFIGURATION */
+                <>
+                  <div className="flex items-center justify-between bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-sm">
+                    <div className="flex items-center gap-2.5">
+                      <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                      <div>
+                        <span className="text-xs font-bold block">Credenciales Desbloqueadas</span>
+                        <span className="text-[10px] text-slate-400">Acceso activo solo para administración</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsSupabaseUnlocked(false)}
+                      className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-pink-400" />
+                      <span>Ocultar & Bloquear</span>
+                    </button>
+                  </div>
 
-                <pre className="bg-slate-950 p-4 rounded-xl text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-48 border border-slate-800">
-                  {SUPABASE_SQL_SCHEMA}
-                </pre>
-              </div>
+                  <div className="bg-white rounded-2xl p-6 border border-rose-100 shadow-2xs space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-base font-serif font-bold text-slate-900 flex items-center gap-2">
+                          <Database className="w-5 h-5 text-emerald-600" />
+                          Conexión a Base de Datos Supabase
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Ingresa tus credenciales de Supabase para almacenar en la nube en tiempo real tus productos y transacciones.
+                        </p>
+                      </div>
+
+                      <div className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
+                        supabaseConfig.isConnected
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {supabaseConfig.isConnected ? (
+                          <>
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Conectado a Supabase
+                          </>
+                        ) : (
+                          <>
+                            <AlertCircle className="w-3.5 h-3.5" /> Modo Local (Fallback)
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleSaveSupabaseConfig} className="space-y-4 text-xs">
+                      <div>
+                        <label className="block font-bold text-slate-700 mb-1">Project URL de Supabase</label>
+                        <input
+                          type="text"
+                          required
+                          value={spUrl}
+                          onChange={(e) => setSpUrl(e.target.value)}
+                          placeholder="https://xyz.supabase.co"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-rose-200 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block font-bold text-slate-700 mb-1">Anon / Public API Key</label>
+                        <div className="relative">
+                          <input
+                            type={showSpKey ? 'text' : 'password'}
+                            required
+                            value={spKey}
+                            onChange={(e) => setSpKey(e.target.value)}
+                            placeholder="eyJhbGciOi..."
+                            className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-rose-200 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowSpKey(!showSpKey)}
+                            className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                          >
+                            {showSpKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {spMessage && (
+                        <div className={`p-3 rounded-xl font-bold ${
+                          spMessage.success ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'
+                        }`}>
+                          {spMessage.text}
+                        </div>
+                      )}
+
+                      <div className="flex justify-end gap-3 pt-2">
+                        <button
+                          type="submit"
+                          disabled={spTesting}
+                          className="py-2.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all"
+                        >
+                          {spTesting ? 'Probando Conexión...' : 'Probar & Guardar Conexión'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* SQL Schema Generator Box */}
+                  <div className="bg-slate-900 text-slate-200 rounded-2xl p-6 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-bold text-white">Script SQL para crear las tablas en Supabase</h4>
+                        <p className="text-xs text-slate-400">Copia este código y pégalo en el Editor SQL de supabase.com</p>
+                      </div>
+                      <button
+                        onClick={handleCopySql}
+                        className="py-1.5 px-3 rounded-lg bg-pink-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center gap-1.5 transition-colors"
+                      >
+                        {copiedSql ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedSql ? '¡Copiado!' : 'Copiar Script SQL'}</span>
+                      </button>
+                    </div>
+
+                    <pre className="bg-slate-950 p-4 rounded-xl text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-48 border border-slate-800">
+                      {SUPABASE_SQL_SCHEMA}
+                    </pre>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
